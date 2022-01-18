@@ -5,7 +5,6 @@ namespace TONYLABS\PowerSchool\Api;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use TONYLABS\PowerSchool\Api\Exception\MissingClientCredentialsException;
 use Illuminate\Support\Facades\Response as LaravelResponse;
@@ -108,13 +107,10 @@ class Request
 
         // Retrieve the access token
         $arrayParameters = ['headers' => $arrayHeaders, 'body' => 'grant_type=client_credentials'];
-        $response = $this->getClient()->post('/oauth/access_token', $arrayParameters);
-        $json = json_decode($response->getBody()->getContents());
-
-        // Set and cache the auth token
-        $this->authToken = $json->access_token;
-
-        return $this;
+        $objRequest = $this->getClient()->post('/oauth/access_token', $arrayParameters);
+        $objResponse = json_decode($objRequest->getBody()->getContents());
+        $this->authToken = $objResponse->access_token;
+        return $objResponse;
     }
 
     public function getClient(): Client
