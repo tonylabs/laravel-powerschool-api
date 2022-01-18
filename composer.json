@@ -36,12 +36,5 @@
     },
     "scripts": {
         "test": "vendor/bin/phpunit"
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "TONYLABS\\PowerSchool\\Api\\PowerSchoolApiServiceProvider"
-            ]
-        }
     }
 }
