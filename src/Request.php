@@ -110,11 +110,16 @@ class Request
         $objRequest = $this->getClient()->post('/oauth/access_token', $arrayParameters);
         $objResponse = json_decode($objRequest->getBody()->getContents());
         $this->authToken = $objResponse->access_token;
-        return $objResponse;
+        return $this;
     }
 
     public function getClient(): Client
     {
         return $this->client;
+    }
+
+    public function getToken()
+    {
+        return $this->authToken;
     }
 }
