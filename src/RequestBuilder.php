@@ -26,9 +26,9 @@ class RequestBuilder {
     protected string $pageKey = 'record';
     protected Paginator $paginator;
 
-    public function __construct(string $serverAddress, string $clientId, string $clientSecret, ?string $cacheKey = 'powerschool_token')
+    public function __construct(string $serverAddress, string $clientId, string $clientSecret)
     {
-        $this->request = new Request($serverAddress, $clientId, $clientSecret, $cacheKey);
+        $this->request = new Request($serverAddress, $clientId, $clientSecret);
     }
 
     public function getRequest(): Request

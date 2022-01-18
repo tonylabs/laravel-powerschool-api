@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Response as LaravelResponse;
 
 class Request
 {
-    public ?string $cacheKey;
     protected Client $client;
     protected string $clientId;
     protected string $clientSecret;
@@ -25,18 +24,12 @@ class Request
      * @param string $serverAddress The url of the server
      * @param string $clientId The client id obtained from installing a plugin with oauth enabled
      * @param string $clientSecret The client secret obtained from installing a plugin with oauth enabled
-     * @param string|null $cacheKey The key for the cache
      */
-    public function __construct(string $serverAddress, string $clientId, string $clientSecret, ?string $cacheKey)
+    public function __construct(string $serverAddress, string $clientId, string $clientSecret)
     {
         $this->client = new Client(['base_uri' => $serverAddress]);
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
-        $this->cacheKey = $cacheKey;
-
-        if ($this->cacheKey) {
-            $this->authToken = Cache::get($this->cacheKey, false);
-        }
     }
 
     /**
@@ -116,13 +109,10 @@ class Request
         // Retrieve the access token
         $arrayParameters = ['headers' => $arrayHeaders, 'body' => 'grant_type=client_credentials'];
         $response = $this->getClient()->post('/oauth/access_token', $arrayParameters);
-
         $json = json_decode($response->getBody()->getContents());
 
         // Set and cache the auth token
         $this->authToken = $json->access_token;
-
-        if ($this->cacheKey) Cache::put($this->cacheKey, $this->authToken, now()->addSeconds($json->expires_in));
 
         return $this;
     }
