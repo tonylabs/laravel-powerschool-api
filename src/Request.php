@@ -12,23 +12,24 @@ use Illuminate\Support\Facades\Response as LaravelResponse;
 class Request
 {
     protected Client $client;
-    protected string $clientId;
-    protected string $clientSecret;
-    protected string $authToken;
+    protected string $client_id;
+    protected string $client_secret;
+    protected string $token;
+    protected string $token_type;
     protected int $attempts = 0;
 
     /**
      * Creates a new Request object to interact with PS's api
      *
      * @param string $serverAddress The url of the server
-     * @param string $clientId The client id obtained from installing a plugin with oauth enabled
-     * @param string $clientSecret The client secret obtained from installing a plugin with oauth enabled
+     * @param string $client_id The client id obtained from installing a plugin with oauth enabled
+     * @param string $client_secret The client secret obtained from installing a plugin with oauth enabled
      */
-    public function __construct(string $serverAddress, string $clientId, string $clientSecret)
+    public function __construct(string $serverAddress, string $client_id, string $client_secret)
     {
         $this->client = new Client(['base_uri' => $serverAddress]);
-        $this->clientId = $clientId;
-        $this->clientSecret = $clientSecret;
+        $this->client_id = $client_id;
+        $this->client_secret = $client_secret;
     }
 
     /**
@@ -48,7 +49,7 @@ class Request
         $options['headers']['Content-Type'] = 'application/json';
 
         // Add the auth token for the header
-        $options['headers']['Authorization'] = 'Bearer ' . $this->authToken;
+        $options['headers']['Authorization'] = 'Bearer ' . $this->token;
 
         // Throw exceptions for 4xx and 5xx errors
         $options['http_errors'] = true;
@@ -88,16 +89,16 @@ class Request
     public function authenticate(bool $force = false): static
     {
         // Check if there is already a token and we're not doing a force-retrieval
-        if (!$force && $this->authToken) {
+        if (!$force && $this->token) {
             return $this;
         }
 
         // Double check that there are client credentials
-        if (!$this->clientId || !$this->clientSecret) {
+        if (!$this->client_id || !$this->client_secret) {
             throw new MissingClientCredentialsException('Client id or secret is missing. Please retrieve from PowerSchool.');
         }
 
-        $token = base64_encode($this->clientId . ':' . $this->clientSecret);
+        $token = base64_encode($this->client_id . ':' . $this->client_secret);
 
         $arrayHeaders = [
             'Content-Type' => 'application/x-www-form-urlencoded;charset=UTF-8',
@@ -109,7 +110,8 @@ class Request
         $arrayParameters = ['headers' => $arrayHeaders, 'body' => 'grant_type=client_credentials'];
         $objRequest = $this->getClient()->post('/oauth/access_token', $arrayParameters);
         $objResponse = json_decode($objRequest->getBody()->getContents());
-        $this->authToken = $objResponse->access_token;
+        $this->token = $objResponse->access_token;
+        $this->token_type = $objResponse->token_type;
         return $this;
     }
 
@@ -120,6 +122,11 @@ class Request
 
     public function getToken()
     {
-        return $this->authToken;
+        return $this->token;
+    }
+
+    public function getTokenType()
+    {
+        return $this->token_type;
     }
 }
