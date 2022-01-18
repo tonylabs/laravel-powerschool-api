@@ -16,6 +16,7 @@ class Request
     protected string $client_secret;
     protected string $token;
     protected string $token_type;
+    protected string $expires_in;
     protected int $attempts = 0;
 
     /**
@@ -40,30 +41,18 @@ class Request
         $this->authenticate();
         $this->attempts++;
 
-        if (!isset($options['headers'])) {
-            $options['headers'] = [];
-        }
-
-        // Force json
+        if (!isset($options['headers'])) $options['headers'] = [];
         $options['headers']['Accept'] = 'application/json';
         $options['headers']['Content-Type'] = 'application/json';
-
-        // Add the auth token for the header
         $options['headers']['Authorization'] = 'Bearer ' . $this->token;
-
-        // Throw exceptions for 4xx and 5xx errors
         $options['http_errors'] = true;
 
         try {
-            $response = $this->getClient()
-                ->request($method, $endpoint, $options);
+            $response = $this->getClient()->request($method, $endpoint, $options);
         } catch (ClientException $exception) {
             $response = $exception->getResponse();
-
-            // If the response is an expired token, reauthenticate and try again
             if ($response->getStatusCode() === 401 && $this->attempts < 3) {
-                return $this->authenticate(true)
-                    ->makeRequest($method, $endpoint, $options);
+                return $this->authenticate(true)->makeRequest($method, $endpoint, $options);
             }
             Log::info($response->getBody()->getContents())->red()->label($response->getStatusCode());
             throw $exception;
@@ -75,7 +64,6 @@ class Request
         if ($returnResponse) {
             return LaravelResponse::json($body, $response->getStatusCode());
         }
-
         return $body ?? [];
     }
 
@@ -105,13 +93,12 @@ class Request
             'Accept' => 'application/json',
             'Authorization' => 'Basic ' . $token,
         ];
-
-        // Retrieve the access token
         $arrayParameters = ['headers' => $arrayHeaders, 'body' => 'grant_type=client_credentials'];
         $objRequest = $this->getClient()->post('/oauth/access_token', $arrayParameters);
         $objResponse = json_decode($objRequest->getBody()->getContents());
         $this->token = $objResponse->access_token;
         $this->token_type = $objResponse->token_type;
+        $this->expires_in = $objResponse->expires_in;
         return $this;
     }
 
@@ -128,5 +115,10 @@ class Request
     public function getTokenType()
     {
         return $this->token_type;
+    }
+
+    public function getExpiresIn()
+    {
+        return $this->expires_in;
     }
 }
