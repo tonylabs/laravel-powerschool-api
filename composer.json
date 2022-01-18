@@ -1,0 +1,43 @@
+{
+    "name": "tonylabs/powerschool-api-adapter",
+    "description": "PowerSchool API Adapter",
+    "keywords": ["powerschool"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "TONYLABS",
+            "email": "tony.wang@tonylabs.com"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "ext-json": "*",
+        "guzzlehttp/guzzle": "^7.0.1",
+        "illuminate/console": "^8.0",
+        "illuminate/support": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "TONYLABS\\PowerSchool\\Api\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "TONYLABS\\PowerSchool\\Api\\PowerSchoolApiServiceProvider"
+            ]
+        }
+    }
+}
