@@ -15,23 +15,17 @@ class Paginator
 
     public function page(): ?Response
     {
-        $results = $this->builder
-            ->page($this->page)
-            ->send(false);
+        $arrayResults = $this->builder->page($this->page)->send(false);
 
-        // This means that PS sent back a single record
-        // and should be wrapped in an array
-        if (!$results->isEmpty() && !$results[0]) {
-            $results->setData([$results->data]);
+        //@A single record wrapped in an array
+        if (!$arrayResults->isEmpty() && !$arrayResults[0]) {
+            $arrayResults->setData([$arrayResults->data]);
         }
-
-        if ($results->isEmpty()) {
+        if ($arrayResults->isEmpty()) {
             $this->page = 1;
             return null;
         }
-
         $this->page += 1;
-
-        return $results;
+        return $arrayResults;
     }
 }

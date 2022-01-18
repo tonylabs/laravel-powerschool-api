@@ -6,6 +6,7 @@ use Illuminate\Support\Str;
 use stdClass;
 
 class RequestBuilder {
+
     const GET = 'get';
     const POST = 'post';
     const PUT = 'put';
@@ -61,12 +62,9 @@ class RequestBuilder {
     public function setTable(string $table): static
     {
         $this->table = $table;
-        $this->endpoint = Str::startsWith($table, '/')
-            ? $table
-            : '/ws/schema/table/' . $table;
+        $this->endpoint = Str::startsWith($table, '/') ? $table : '/ws/schema/table/' . $table;
         $this->includeProjection = true;
         $this->pageKey = 'record';
-
         return $this;
     }
 
@@ -101,7 +99,6 @@ class RequestBuilder {
     {
         $this->endpoint .= '/' . $id;
         $this->id = $id;
-
         return $this;
     }
 

@@ -4,6 +4,7 @@ namespace TONYLABS\PowerSchool\Api;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class Response implements \Iterator, \ArrayAccess
 {
@@ -16,9 +17,8 @@ class Response implements \Iterator, \ArrayAccess
     public function __construct(array $data, string $key)
     {
         $this->tableName = strtolower($data['name'] ?? null);
-
         $this->data = $this->inferData($data, strtolower($key));
-        DebugLogger::log(fn () => ray($this->data)->purple()->label('Response data'));
+        Log::info($this->data);
     }
 
     protected function inferData(array $data, string $key): array
@@ -55,7 +55,6 @@ class Response implements \Iterator, \ArrayAccess
     public function setData(array $data): static
     {
         $this->data = $data;
-
         return $this;
     }
 
@@ -64,6 +63,7 @@ class Response implements \Iterator, \ArrayAccess
         if (!$this->tableName) {
             return $this;
         }
+
         $isAssoc = Arr::isAssoc($this->data);
 
         if ($isAssoc) {
@@ -89,12 +89,8 @@ class Response implements \Iterator, \ArrayAccess
 
     protected function splitCommaString(?string $string): array
     {
-        if (!$string) {
-            return [];
-        }
-
+        if (!$string) return [];
         $parts = explode(',', $string);
-
         return array_map(fn ($s) => trim($s), $parts);
     }
 
@@ -111,11 +107,7 @@ class Response implements \Iterator, \ArrayAccess
     public function current(): mixed
     {
         $current = $this->data[$this->index] ?? null;
-
-        if (!$current || !Arr::has($current, 'tables')) {
-            return $current;
-        }
-
+        if (!$current || !Arr::has($current, 'tables')) return $current;
         return Arr::get($current, "tables.{$this->tableName}");
     }
 

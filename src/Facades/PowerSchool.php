@@ -2,9 +2,9 @@
 
 namespace TONYLABS\PowerSchool\Api\Facades;
 
+use Illuminate\Support\Facades\Facade;
 use TONYLABS\PowerSchool\Api\Request;
 use TONYLABS\PowerSchool\Api\Response;
-use Illuminate\Support\Facades\Facade;
 use TONYLABS\PowerSchool\Api\RequestBuilder;
 
 /**

@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use TONYLABS\PowerSchool\Api\Exception\MissingClientCredentialsException;
 use Illuminate\Support\Facades\Response as LaravelResponse;
 
@@ -71,16 +72,13 @@ class Request
                 return $this->authenticate(true)
                     ->makeRequest($method, $endpoint, $options);
             }
-
-            DebugLogger::log(fn () => ray()->json($response->getBody()->getContents())->red()->label($response->getStatusCode()));
-
+            Log::info($response->getBody()->getContents())->red()->label($response->getStatusCode());
             throw $exception;
         }
 
         $this->attempts = 0;
         $body = json_decode($response->getBody()->getContents(), true);
-        DebugLogger::log($body);
-
+        Log::info($body);
         if ($returnResponse) {
             return LaravelResponse::json($body, $response->getStatusCode());
         }
@@ -104,32 +102,27 @@ class Request
 
         // Double check that there are client credentials
         if (!$this->clientId || !$this->clientSecret) {
-            throw new MissingClientCredentialsException('Missing either client ID or secret. Cannot authenticate with PowerSchool API.');
+            throw new MissingClientCredentialsException('Client id or secret is missing. Please retrieve from PowerSchool.');
         }
 
         $token = base64_encode($this->clientId . ':' . $this->clientSecret);
 
-        $headers = [
+        $arrayHeaders = [
             'Content-Type' => 'application/x-www-form-urlencoded;charset=UTF-8',
             'Accept' => 'application/json',
             'Authorization' => 'Basic ' . $token,
         ];
 
         // Retrieve the access token
-        $response = $this->getClient()
-            ->post('/oauth/access_token', [
-                'headers' => $headers,
-                'body' => 'grant_type=client_credentials'
-            ]);
+        $arrayParameters = ['headers' => $arrayHeaders, 'body' => 'grant_type=client_credentials'];
+        $response = $this->getClient()->post('/oauth/access_token', $arrayParameters);
 
         $json = json_decode($response->getBody()->getContents());
 
         // Set and cache the auth token
         $this->authToken = $json->access_token;
 
-        if ($this->cacheKey) {
-            Cache::put($this->cacheKey, $this->authToken, now()->addSeconds($json->expires_in));
-        }
+        if ($this->cacheKey) Cache::put($this->cacheKey, $this->authToken, now()->addSeconds($json->expires_in));
 
         return $this;
     }
