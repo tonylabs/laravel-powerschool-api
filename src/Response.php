@@ -4,7 +4,6 @@ namespace TONYLABS\PowerSchool\Api;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 class Response implements \Iterator, \ArrayAccess
 {
@@ -18,7 +17,6 @@ class Response implements \Iterator, \ArrayAccess
     {
         $this->tableName = strtolower($data['name'] ?? null);
         $this->data = $this->inferData($data, strtolower($key));
-        Log::info($this->data);
     }
 
     protected function inferData(array $data, string $key): array

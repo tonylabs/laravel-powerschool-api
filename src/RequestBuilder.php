@@ -495,8 +495,7 @@ class RequestBuilder {
      */
     public function getDataSubscriptionChanges(string $applicationName, int $version): Response
     {
-        return $this->endpoint("/ws/dataversion/{$applicationName}/{$version}")
-            ->get();
+        return $this->endpoint("/ws/dataversion/{$applicationName}/{$version}")->get();
     }
 
     /**
