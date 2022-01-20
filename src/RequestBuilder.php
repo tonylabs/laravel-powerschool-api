@@ -26,9 +26,9 @@ class RequestBuilder {
     protected string $pageKey = 'record';
     protected Paginator $paginator;
 
-    public function __construct(string $serverAddress, string $clientId, string $clientSecret)
+    public function __construct(string $serverAddress, string $clientId, string $clientSecret, ?string $token = 'token')
     {
-        $this->request = new Request($serverAddress, $clientId, $clientSecret);
+        $this->request = new Request($serverAddress, $clientId, $clientSecret, $token);
     }
 
     public function getRequest(): Request
@@ -52,7 +52,6 @@ class RequestBuilder {
         $this->asJsonResponse = false;
         unset($this->paginator);
         $this->pageKey = 'record';
-
         return $this;
     }
 
@@ -205,21 +204,12 @@ class RequestBuilder {
      */
     public function setNamedQuery(string $query, array $data = [])
     {
-        $this->endpoint = Str::startsWith($query, '/')
-            ? $query
-            : '/ws/schema/query/' . $query;
+        $this->endpoint = Str::startsWith($query, '/') ? $query : '/ws/schema/query/' . $query;
         $this->pageKey = 'record';
-
-        // If there's data along with it,
-        // it's shorthand for sending the request
         if (!empty($data)) {
             return $this->withData($data)->post();
         }
-
-        // By default, don't include the projection unless
-        // it gets added later explicitly
         $this->includeProjection = false;
-
         return $this->setMethod(static::POST);
     }
 
@@ -293,7 +283,6 @@ class RequestBuilder {
     public function setDataItem(string $key, $value): static
     {
         $this->data[$key] = $this->castToValuesString($value);
-
         return $this;
     }
 
@@ -309,7 +298,6 @@ class RequestBuilder {
         }
 
         $this->queryString = $queryString;
-
         return $this;
     }
 
@@ -327,7 +315,6 @@ class RequestBuilder {
     public function addQueryVar(string $key, $value): static
     {
         $this->queryString[$key] = $value;
-
         return $this;
     }
 
@@ -336,8 +323,7 @@ class RequestBuilder {
      */
     public function hasQueryVar(string $key): bool
     {
-        return isset($this->queryString[$key]) &&
-            !empty($this->queryString[$key]);
+        return isset($this->queryString[$key]) && !empty($this->queryString[$key]);
     }
 
     /**
@@ -406,13 +392,9 @@ class RequestBuilder {
      */
     public function sort(string|array $columns, bool $descending = false): static
     {
-        $sort = is_array($columns)
-            ? implode(',', $columns)
-            : $columns;
-
+        $sort = is_array($columns) ? implode(',', $columns) : $columns;
         $this->addQueryVar('sort', $sort);
         $this->addQueryVar('sortdescending', $descending ? 'true' : 'false');
-
         return $this;
     }
 
@@ -445,8 +427,7 @@ class RequestBuilder {
      */
     public function dataVersion(int $version, string $applicationName): static
     {
-        return $this->setDataItem('$dataversion', $version)
-            ->setDataItem('$dataversion_applicationname', $applicationName);
+        return $this->setDataItem('$dataversion', $version)->setDataItem('$dataversion_applicationname', $applicationName);
     }
 
     /**
@@ -462,12 +443,8 @@ class RequestBuilder {
      */
     public function expansions(string|array $expansions): static
     {
-        $expansions = is_array($expansions)
-            ? implode(',', $expansions)
-            : $expansions;
-
+        $expansions = is_array($expansions) ? implode(',', $expansions) : $expansions;
         $this->addQueryVar('expansions', $expansions);
-
         return $this;
     }
 
@@ -492,12 +469,8 @@ class RequestBuilder {
      */
     public function extensions(string|array $extensions): static
     {
-        $extensions = is_array($extensions)
-            ? implode(',', $extensions)
-            : $extensions;
-
+        $extensions = is_array($extensions) ? implode(',', $extensions) : $extensions;
         $this->addQueryVar('extensions', $extensions);
-
         return $this;
     }
 
@@ -533,7 +506,6 @@ class RequestBuilder {
     {
         $this->endpoint .= '/count';
         $this->includeProjection = false;
-
         return $this->get();
     }
 
@@ -543,7 +515,6 @@ class RequestBuilder {
     public function raw(): static
     {
         $this->asJsonResponse = false;
-
         return $this;
     }
 
@@ -553,7 +524,6 @@ class RequestBuilder {
     public function asJsonResponse(): static
     {
         $this->asJsonResponse = true;
-
         return $this;
     }
 
@@ -584,7 +554,6 @@ class RequestBuilder {
             // with throw a typecast error or something
             $data[$key] = (string) $value;
         }
-
         return $data;
     }
 
@@ -721,40 +690,27 @@ class RequestBuilder {
      */
     public function send(bool $reset = true): Response
     {
-        $this->buildRequestJson()
-            ->buildRequestQuery();
-
-        $responseData = $this->getRequest()
-            ->makeRequest(
-                $this->method,
-                $this->endpoint,
-                $this->options,
-                $this->asJsonResponse
-            );
+        $this->buildRequestJson()->buildRequestQuery();
+        $responseData = $this->getRequest()->makeRequest($this->method, $this->endpoint, $this->options, $this->asJsonResponse);
         $response = new Response($responseData, $this->pageKey);
-
         if ($reset) {
             $this->freshen();
         }
-
         return $response;
     }
 
     /**
-     * This will return a chunk of data from PS
+     * This will return a chunk of data from PowerSchool
      */
     public function paginate(int $pageSize = 100): ?Response
     {
         if (!isset($this->paginator)) {
             $this->paginator = new Paginator($this, $pageSize);
         }
-
         $results = $this->paginator->page();
-
         if ($results === null) {
             $this->freshen();
         }
-
         return $results;
     }
 }

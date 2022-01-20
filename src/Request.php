@@ -5,7 +5,6 @@ namespace TONYLABS\PowerSchool\Api;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 use TONYLABS\PowerSchool\Api\Exception\MissingClientCredentialsException;
 use Illuminate\Support\Facades\Response as LaravelResponse;
 
@@ -16,7 +15,7 @@ class Request
     protected string $client_secret;
     protected string $token;
     protected string $token_type;
-    protected string $expires_in;
+    protected string $expires;
     protected int $attempts = 0;
 
     /**
@@ -26,11 +25,12 @@ class Request
      * @param string $client_id The client id obtained from installing a plugin with oauth enabled
      * @param string $client_secret The client secret obtained from installing a plugin with oauth enabled
      */
-    public function __construct(string $serverAddress, string $client_id, string $client_secret)
+    public function __construct(string $serverAddress, string $client_id, string $client_secret, ?string $token)
     {
         $this->client = new Client(['base_uri' => $serverAddress]);
         $this->client_id = $client_id;
         $this->client_secret = $client_secret;
+        $this->token = $token;
     }
 
     /**
@@ -54,15 +54,15 @@ class Request
             if ($response->getStatusCode() === 401 && $this->attempts < 3) {
                 return $this->authenticate(true)->makeRequest($method, $endpoint, $options);
             }
-            Log::info($response->getBody()->getContents())->red()->label($response->getStatusCode());
+            Debug::log(fn () => ray()->json($response->getBody()->getContents())->red()->label($response->getStatusCode()));
             throw $exception;
         }
-
         $this->attempts = 0;
-        $body = json_decode($response->getBody()->getContents(), true);
-        Log::info($body);
+        $objBody = json_decode($response->getBody()->getContents(), true);
+        Debug::log($objBody);
+
         if ($returnResponse) {
-            return LaravelResponse::json($body, $response->getStatusCode());
+            return LaravelResponse::json($objBody, $response->getStatusCode());
         }
         return $body ?? [];
     }
@@ -77,7 +77,7 @@ class Request
     public function authenticate(bool $force = false): static
     {
         // Check if there is already a token and we're not doing a force-retrieval
-        if (!$force && $this->token) {
+        if ($force == false && $this->token) {
             return $this;
         }
 
@@ -98,7 +98,7 @@ class Request
         $objResponse = json_decode($objRequest->getBody()->getContents());
         $this->token = $objResponse->access_token;
         $this->token_type = $objResponse->token_type;
-        $this->expires_in = $objResponse->expires_in;
+        $this->expires = $objResponse->expires_in;
         return $this;
     }
 
@@ -117,8 +117,8 @@ class Request
         return $this->token_type;
     }
 
-    public function getExpiresIn()
+    public function getExpires()
     {
-        return $this->expires_in;
+        return $this->expires;
     }
 }

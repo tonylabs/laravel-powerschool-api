@@ -6,16 +6,16 @@ class Paginator
 {
     protected int $page = 1;
 
-    protected RequestBuilder $builder;
+    protected RequestBuilder $objRequestBuilder;
 
     public function __construct(RequestBuilder $builder, int $pageSize = 100)
     {
-        $this->builder = $builder->pageSize($pageSize);
+        $this->objRequestBuilder = $builder->pageSize($pageSize);
     }
 
     public function page(): ?Response
     {
-        $arrayResults = $this->builder->page($this->page)->send(false);
+        $arrayResults = $this->objRequestBuilder->page($this->page)->send(false);
 
         //@A single record wrapped in an array
         if (!$arrayResults->isEmpty() && !$arrayResults[0]) {
