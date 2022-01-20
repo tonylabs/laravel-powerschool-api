@@ -30,7 +30,7 @@ class Request
         $this->client = new Client(['base_uri' => $serverAddress]);
         $this->client_id = $client_id;
         $this->client_secret = $client_secret;
-        $this->token = $token;
+        if (!empty($token)) $this->token = $token;
     }
 
     /**

@@ -26,7 +26,7 @@ class RequestBuilder {
     protected string $pageKey = 'record';
     protected Paginator $paginator;
 
-    public function __construct(string $serverAddress, string $clientId, string $clientSecret, ?string $token = 'token')
+    public function __construct(string $serverAddress, string $clientId, string $clientSecret, ?string $token = '')
     {
         $this->request = new Request($serverAddress, $clientId, $clientSecret, $token);
     }
