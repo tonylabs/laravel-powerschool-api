@@ -59,11 +59,11 @@ class Request
         }
         $this->attempts = 0;
         $objBody = json_decode($response->getBody()->getContents(), true);
-        Debug::log($objBody);
+        Debug::log($objBody)->color('green');
         if ($returnResponse) {
             return LaravelResponse::json($objBody, $response->getStatusCode());
         }
-        return $body ?? [];
+        return $objBody ?? [];
     }
 
     /**
