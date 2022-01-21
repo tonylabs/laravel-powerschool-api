@@ -692,9 +692,7 @@ class RequestBuilder {
         $this->buildRequestJson()->buildRequestQuery();
         $responseData = $this->getRequest()->makeRequest($this->method, $this->endpoint, $this->options, $this->asJsonResponse);
         $response = new Response($responseData, $this->pageKey);
-        if ($reset) {
-            $this->freshen();
-        }
+        if ($reset) $this->freshen();
         return $response;
     }
 

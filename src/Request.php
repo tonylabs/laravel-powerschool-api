@@ -58,8 +58,13 @@ class Request
             throw $exception;
         }
         $this->attempts = 0;
-        $objBody = json_decode($response->getBody()->getContents(), true);
-        Debug::log($objBody);
+
+        $jsonContent = $response->getBody()->getContents();
+
+        Debug::log($jsonContent);
+
+        $objBody = json_decode($jsonContent, true);
+
         if ($returnResponse) {
             return LaravelResponse::json($objBody, $response->getStatusCode());
         }
