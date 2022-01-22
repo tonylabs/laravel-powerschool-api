@@ -148,7 +148,6 @@ class RequestBuilder {
     public function excludeProjection(): static
     {
         $this->includeProjection = false;
-
         return $this;
     }
 
@@ -167,7 +166,6 @@ class RequestBuilder {
     {
         $this->endpoint = $endpoint;
         $this->pageKey = Str::afterLast($endpoint, '/');
-
         return $this->excludeProjection();
     }
 
