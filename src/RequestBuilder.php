@@ -7,11 +7,11 @@ use stdClass;
 
 class RequestBuilder {
 
-    const GET = 'get';
-    const POST = 'post';
-    const PUT = 'put';
-    const PATCH = 'patch';
-    const DELETE = 'delete';
+    const GET = 'GET';
+    const POST = 'POST';
+    const PUT = 'PUT';
+    const PATCH = 'PATCH';
+    const DELETE = 'DELETE';
 
     protected Request $request;
     protected ?string $endpoint;
@@ -597,7 +597,8 @@ class RequestBuilder {
             return $this;
         }
 
-        $this->options['query'] = '';$this->options['query'] = '';
+        $this->options['query'] = '';
+        $this->options['query'] = '';
         $qs = [];
 
         // Build the query string

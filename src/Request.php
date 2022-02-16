@@ -58,13 +58,8 @@ class Request
             throw $exception;
         }
         $this->attempts = 0;
-
         $jsonContent = $response->getBody()->getContents();
-
-        Debug::log($jsonContent);
-
         $objBody = json_decode($jsonContent, true);
-
         if ($returnResponse) {
             return LaravelResponse::json($objBody, $response->getStatusCode());
         }
@@ -84,18 +79,15 @@ class Request
         if ($force == false && $this->token) {
             return $this;
         }
-
         // Double check that there are client credentials
         if (!$this->client_id || !$this->client_secret) {
             throw new MissingClientCredentialsException('Client id or secret is missing. Please retrieve from PowerSchool.');
         }
 
-        $token = base64_encode($this->client_id . ':' . $this->client_secret);
-
         $arrayHeaders = [
             'Content-Type' => 'application/x-www-form-urlencoded;charset=UTF-8',
             'Accept' => 'application/json',
-            'Authorization' => 'Basic ' . $token,
+            'Authorization' => 'Basic ' . base64_encode($this->client_id . ':' . $this->client_secret),
         ];
         $arrayParameters = ['headers' => $arrayHeaders, 'body' => 'grant_type=client_credentials'];
         $objRequest = $this->getClient()->post('/oauth/access_token', $arrayParameters);
