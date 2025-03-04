@@ -2,7 +2,7 @@
     "name": "tonylabs/powerschool-api-adapter",
     "description": "PowerSchool API Adapter for multiple PowerSchool instances management.",
     "keywords": ["powerschool"],
-    "version": "1.0.0",
+    "version": "1.0.1",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -11,15 +11,15 @@
             "email": "support@tonylabs.com"
         }
     ],
-    "require-dev": {
-        "phpunit/phpunit": "^10.5"
-    },
     "require": {
-        "php": "^8.0",
+        "php": "^8.2",
         "ext-json": "*",
         "guzzlehttp/guzzle": "^7.0.1",
-        "illuminate/console": "^10.0",
-        "illuminate/support": "^10.0"
+        "illuminate/console": "^10.0|^11.0|^12.0",
+        "illuminate/support": "^10.0|^11.0|^12.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0"
     },
     "autoload": {
         "psr-4": {
