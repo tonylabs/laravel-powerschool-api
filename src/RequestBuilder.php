@@ -565,18 +565,17 @@ class RequestBuilder {
 
         // Reset the json object from previous requests
         $this->options['json'] = [];
-
+        
+        // Use more concise conditional assignments
         if ($this->table) {
             $this->options['json']['tables'] = [$this->table => $this->data];
+        } elseif ($this->data) {
+            $this->options['json'] = $this->data;
         }
 
         if ($this->id) {
             $this->options['json']['id'] = $this->id;
             $this->options['json']['name'] = $this->table;
-        }
-
-        if ($this->data && !$this->table) {
-            $this->options['json'] = $this->data;
         }
 
         // Remove the json option if there is nothing there
@@ -706,6 +705,7 @@ class RequestBuilder {
         $results = $this->paginator->page();
         if ($results === null) {
             $this->freshen();
+            return null;
         }
         return $results;
     }

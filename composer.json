@@ -1,7 +1,7 @@
 {
     "name": "tonylabs/powerschool-api-adapter",
     "description": "PowerSchool API Adapter for multiple PowerSchool instances management.",
-    "keywords": ["powerschool"],
+    "keywords": ["powerschool", "laravel", "api", "education", "school-management"],
     "version": "1.0.1",
     "type": "library",
     "license": "MIT",
@@ -19,7 +19,8 @@
         "illuminate/support": "^10.0|^11.0|^12.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^9.0"
+        "orchestra/testbench": "^9.0",
+        "phpunit/phpunit": "^10.0"
     },
     "autoload": {
         "psr-4": {
@@ -32,9 +33,22 @@
         }
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "optimize-autoloader": true
     },
     "scripts": {
-        "test": "vendor/bin/phpunit"
+        "test": "vendor/bin/phpunit",
+        "check-style": "phpcs -p --standard=PSR12 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src tests",
+        "fix-style": "phpcbf -p --standard=PSR12 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 src tests"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "TONYLABS\\PowerSchool\\Api\\PowerSchoolServiceProvider"
+            ],
+            "aliases": {
+                "PowerSchool": "TONYLABS\\PowerSchool\\Api\\Facades\\PowerSchool"
+            }
+        }
     }
 }
