@@ -255,7 +255,6 @@ class RequestBuilder {
     public function setData(array $data): static
     {
         $this->data = $this->castToValuesString($data);
-
         return $this;
     }
 
@@ -529,10 +528,14 @@ class RequestBuilder {
      */
     protected function castToValuesString(array $data): array
     {
+        $result = [];
         foreach ($data as $key => $value) {
+            // Convert all keys to lowercase
+            $lowercaseKey = strtolower($key);
+            
             // Recursively set the nested array values
             if (is_array($value)) {
-                $data[$key] = $this->castToValuesString($value);
+                $result[$lowercaseKey] = $this->castToValuesString($value);
                 continue;
             }
 
@@ -549,9 +552,9 @@ class RequestBuilder {
 
             // Cast everything as a string, otherwise PS
             // with throw a typecast error or something
-            $data[$key] = (string) $value;
+            $result[$lowercaseKey] = (string) $value;
         }
-        return $data;
+        return $result;
     }
 
     /**

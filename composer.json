@@ -2,7 +2,7 @@
     "name": "tonylabs/powerschool-api-adapter",
     "description": "PowerSchool API Adapter for multiple PowerSchool instances management.",
     "keywords": ["powerschool", "laravel", "api", "education", "school-management"],
-    "version": "1.0.1",
+    "version": "1.0.2",
     "type": "library",
     "license": "MIT",
     "authors": [
